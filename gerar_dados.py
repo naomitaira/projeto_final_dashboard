@@ -19,6 +19,12 @@ dados = pd.DataFrame({
 
 })
 
+dados['Lucro']=dados['Vendas'] - dados['Custo'].round(2)
+
+# transformar em df + salvar em csv
+
 df = pd.DataFrame(dados)
 
-df.to_csv("dados.csv", index=False)
+df.to_csv("./dados/vendas.csv", index=False)
+
+print("Sucesso! Dados salvos em csv ./dados/vendas.csv")
