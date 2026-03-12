@@ -60,3 +60,20 @@ with colB:
 # EXIBIR O GRÁFICO USANDO STREAMLIT
 
     st.plotly_chart(fig_line, width='content')
+
+
+# top 5 produtos 
+
+st.subheader("Top 5 produtos por receita")
+
+top_5_prod = dados_vendas.groupby("Produto")['Vendas'].sum().nlargest(5).reset_index()
+
+# criar um grafico de barras
+
+fig_3 = px.bar(top_5_prod, x='Produto', y='Vendas',
+               title='Top 5 produtos',
+               color='Vendas', 
+               color_continuous_scale='tealrose')
+
+st.plotly_chart(fig_3, width='stretch')
+

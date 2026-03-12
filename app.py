@@ -13,7 +13,7 @@ st.set_page_config(
 st.markdown("""
 <style>
 .stApp {
-    background-color: #9EF7DB;
+    background-color: #CFF9E7;
 }
 </style>
 """, unsafe_allow_html=True)
