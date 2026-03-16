@@ -3,8 +3,8 @@ import streamlit as st
 # config inicial
 
 st.set_page_config(
-    page_title="Dashboard de vendas",
-    page_icon=":bar_chart",
+    page_title="Dashboard de vendas 🐧",
+    page_icon="📎",
     layout="wide"
 )
 
