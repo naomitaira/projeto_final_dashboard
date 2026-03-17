@@ -30,20 +30,28 @@ analise_vendas = st.Page('./pages/analise_vendas.py',
                          title='Análise de Vendas',
                         )
 
-# analise_produtos = st.Page('./pages/analise_produtos.py',
-#                          title='Análise de Produtos'
-#                         )
+analise_produtos = st.Page('./pages/analise_produtos.py',
+                         title='Análise de Produtos'
+                        )
 
-# sobre = st.Page('./pages/sobre.py',
-#                          title='Sobre'
-#                         )
+sobre = st.Page('./pages/sobre.py',
+                         title='Sobre'
+                        )
+
+mapa = st.Page('./pages/mapa.py',
+                         title='Mapa'
+                        )
+
 
 # configurando a navegacao
 
 pg = st.navigation(
     [
     visao_geral,
-    analise_vendas
+    analise_vendas,
+    analise_produtos,
+    sobre,
+    mapa
     ]
 )
 
