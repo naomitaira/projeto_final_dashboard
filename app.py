@@ -42,6 +42,9 @@ mapa = st.Page('./pages/mapa.py',
                          title='Mapa'
                         )
 
+analise_produto_prof = st.Page('./pages/analise_produto_prof.py',
+                         title='Análise de Produtos - Professor'
+                        )
 
 # configurando a navegacao
 
@@ -51,7 +54,8 @@ pg = st.navigation(
     analise_vendas,
     analise_produtos,
     sobre,
-    mapa
+    mapa,
+    analise_produto_prof
     ]
 )
 

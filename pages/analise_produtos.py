@@ -66,21 +66,20 @@ dados_filtrados = dados_vendas[
     (dados_vendas["Data"].between(data_inicio, data_fim))
 ]
 
-
 # métricas
-# col1, col2, col3 = st.columns(3)
+col1, col2, col3 = st.columns(3)
 
-# col1.metric("Receita Filtrada", f"R$ {dados_filtrados['Vendas'].sum():.2f}")
-# col2.metric("Lucro Filtrado", f"R$ {dados_filtrados['Lucro'].sum():.2f}")
+col1.metric("Receita Filtrada", f"R$ {dados_filtrados['Vendas'].sum():.2f}")
+col2.metric("Lucro Filtrado", f"R$ {dados_filtrados['Lucro'].sum():.2f}")
 
-# # calcula margem média
-# margem_media = "N/A"
+# calcula margem média
+margem_media = "N/A"
 
-# if dados_filtrados['Vendas'].sum() > 0:
-#     margem_media = dados_filtrados['Lucro'].sum() / dados_filtrados['Vendas'].sum() * 100
-#     margem_media = f"{margem_media:.2f}"
+if dados_filtrados['Vendas'].sum() > 0:
+    margem_media = dados_filtrados['Lucro'].sum() / dados_filtrados['Vendas'].sum() * 100
+    margem_media = f"{margem_media:.2f}"
 
-# col3.metric("Margem Média", f"{margem_media} %")
+col3.metric("Margem Média", f"{margem_media} %")
 
 
 st.subheader(":green[Venda de produtos]")
@@ -105,12 +104,15 @@ with v_col1:
 
 with v_col2:
 
-    fig = px.bar(dados_filtrados, x="Vendas", y="Produto",
-        title="👩🏻‍💼Produto x Lucro  👩🏻‍💼",
+   fig = px.bar(
+        vendas_vendedor.reset_index(),
+        x="Produto",
+        y="Receita",
+        title="👩🏻‍💼Produto  👩🏻‍💼",
         color="Lucro",
         color_continuous_scale=px.colors.sequential.Sunset,
         )
-    st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=True)
 
 # # cria nova coluna mes no dataframe - extraindo o mes e o ano da coluna 'data'
 st.subheader("📅 Análise Temporal 📅")
