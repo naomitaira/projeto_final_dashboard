@@ -2,10 +2,18 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Carregar dados
+# Carregar dados - dataframe 1 - pra fazer filtros 
 dados_localizacoes = pd.read_csv("./dados/vendas_geolocalizacao.csv")
 
 df = pd.DataFrame(dados_localizacoes)
+
+# Carregar dados - dataframe 2 - pra fazer mapa 
+
+dados_mapa = pd.read_csv("./dados/vendas_geo_resumo.csv")
+
+df2 = pd.DataFrame(dados_mapa)
+
+###################################################################
 
 st.title("🌎  Mapa de Vendas por Localização")
 
@@ -17,10 +25,10 @@ st.subheader("Visualize a distribuição geográfica das vendas e aplique filtro
 col1,col2,col3,col4 = st.columns(4)
 
 with col1:
-    st.metric("Pontos no Mapa", 2000)
+    st.metric("Pontos no Mapa", len(df2))
 
 with col2:
-    st.metric("Cidades", 38)
+    st.metric("Cidades", df2['Cidade'].count())
 
 with col3:
     st.metric("Receita", f"R$ {df['Vendas'].sum():.2f}")
@@ -117,22 +125,30 @@ dados_filtrados = df[
     (df["Custo"].between(filtro_preco[0], filtro_preco[1]))
 ]
 
-# Gráfico de bolhas
-# fig = px.scatter_mapbox(
-#     df,
-#     lat=df['Latitude'],
-#     lon=df['Longitude'],
-#     size='Vendas',
-#     color='Lucro',
-#     hover_name='Região',
-#     hover_data={'Vendas': True, 'Lucro': True, 'lat': False, 'lon': False},
-#     color_continuous_scale=px.colors.sequential.Magma,
-#     size_max=20,
-#     zoom=2,
-#     mapbox_style="open-street-map"
-# )
+############################ MAPA ############################ 
 
-# st.plotly_chart(fig,width='stretch')
+if "Latitude" in df.columns and "Longitude" in df.columns:
+    
+    fig1 = px.scatter_mapbox(
+        df,
+        lat="Latitude",         
+        lon="Longitude",
+        size='Vendas',
+        color='Lucro',
+        hover_name="Região",     
+        hover_data={
+            "Vendas": True,
+            "Lucro": True,
+            "Latitude": False,  
+            "Longitude": False
+        },
+        color_continuous_scale=px.colors.sequential.Darkmint,
+        size_max=15,
+        zoom=2,
+        mapbox_style="open-street-map"
+        )
+
+st.plotly_chart(fig1,width='stretch')
 
 # mostrar dataframe
 
