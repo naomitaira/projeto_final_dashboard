@@ -3,17 +3,16 @@ import pandas as pd
 import plotly.express as px
 
 # Carregar dados
-dados_localizacoes = pd.read_csv("./dados/vendas_geo_resumo.csv")
+dados_localizacoes = pd.read_csv("./dados/vendas_geolocalizacao.csv")
+
+df = pd.DataFrame(dados_localizacoes)
 
 st.title("🌎  Mapa de Vendas por Localização")
 
 st.subheader("Visualize a distribuição geográfica das vendas e aplique filtros para explorar os dados.")
 
-# Coordenadas
 
-# coordenadas = {}
-
-# criar 4 colunas 
+# criar 4 colunas para as métricas
 
 col1,col2,col3,col4 = st.columns(4)
 
@@ -24,52 +23,105 @@ with col2:
     st.metric("Cidades", 38)
 
 with col3:
-    st.metric("Receita Filtrada",f" R$ XXXX")
+    st.metric("Receita", f"R$ {df['Vendas'].sum():.2f}")
 
 with col4:
-    st.metric("Lucro Filtrado",f" R$ XXXX")
+    st.metric("Lucro", f"R$ {df['Lucro'].sum():.2f}")
+    
+    
+############################ FILTROS ############################
 
-filtro_regiao = st.sidebar.selectbox("Região",
-    ("Todas", "Centro-Oeste", "Nordeste", "Norte", "Sudeste", "Sul"),  index=None,placeholder="Escolha uma das opções",
+############################ FILTRO DE REGIÃO ############################
+
+filtro_regiao = st.sidebar.multiselect(
+    "Selecione as regiões",
+    options=df["Região"].unique(),
+    default=df["Região"][0]
 )
 
-filtro_categoria = st.sidebar.selectbox("Categoria",
-    ("Todas", "Armazenamento", "Informática", "Periféricos"), index=None,placeholder="Escolha uma das opções"
+############################ FILTRO DE CATEGORIA ############################
+
+filtro_categoria = st.sidebar.multiselect(
+    "Selecione as categorias",
+    options=df["Categoria"].unique(),
+    default=df["Categoria"][0]
 )
 
-filtro_produto = st.sidebar.selectbox("Produto",
-    ("Todos", "Headset", "Mouse", "Teclado", "Headphone", "Webcam", "SSD", "Memória RAM"), index=None,placeholder="Escolha uma das opções"
+############################ FILTRO DE PRODUTO ############################
+
+filtro_produto = st.sidebar.multiselect(
+    "Selecione os produtos",
+    options=df["Produto"].unique(),
+    default=df["Produto"][0]
 )
 
-filtro_vendedor = st.sidebar.selectbox("Vendedor",
-    ('Todos', 'Ana Silva', 'Bruno Costa', 'Carla Dias', 'Diego Lima', 'Eva Santos'), index=None,placeholder="Escolha uma das opções"
+############################ FILTRO DE VENDEDOR ############################
+
+filtro_vendedor = st.sidebar.multiselect(
+    "Selecione os vendedores",
+    options=df["Vendedor"].unique(),
+    default=df["Vendedor"][0]
 )
+
+############################ FILTRO DE DATA ############################
+
+# transforma str data pra .to_datetime
+
+df["Data"]=pd.to_datetime(df["Data"])
+
+# transformar a data em padrao br
+
+df["Data_formatada"] = df["Data"].dt.strftime("%d/%m/%Y %H:%M:%S")
 
 # recupera as datas minimas e maximas do dataframe
-# data_min = dados_vendas["Data"].min().date()
-# data_max = dados_vendas["Data"].max().date()
+data_min = df["Data"].min().date()
+data_max = df["Data"].max().date()
 
-# # filtro de periodo
-# data_range = st.sidebar.date_input(
-#     "Selecione o período",
-#     value=(data_min, data_max),
-#     min_value=data_min,
-#     max_value=data_max
-# )
+filtro_data = st.sidebar.date_input(
+    "Selecione o período",
+    value=(data_min, data_max),
+    min_value=data_min,
+    max_value=data_max
+)
 
-# # garantir que existem duas datas selecionadas
-# if len(data_range) == 2:
-#     data_inicio = pd.to_datetime(data_range[0])
-#     data_fim = pd.to_datetime(data_range[1])
-# else:
-#     st.warning("Selecione uma data inicial e final no filtro.")
-#     st.stop()
+
+# garantir que existem duas datas selecionadas
+if len(filtro_data) == 2:
+    data_inicio = pd.to_datetime(filtro_data[0])
+    data_fim = pd.to_datetime(filtro_data[1])
+else:
+    st.warning("Selecione uma data inicial e final no filtro.")
+    st.stop()
+
+############################ FILTRO DE PREÇO ############################
+
+filtro_preco = st.sidebar.slider(
+    "Faixa de Valor da Venda (R$)",
+    min_value=157,
+    max_value=11997,
+    value=(157, 11997)
+)
+# formatar o custo pra melhorar a visualização
+
+df["Custo_formatado"] = df["Custo"].apply(
+    lambda x: f"R$ {x:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
+)
+
+# # aplicar os filtros e montar um DF
+
+dados_filtrados = df[
+    (df["Região"].isin(filtro_regiao)) &
+    (df["Categoria"].isin(filtro_categoria)) &
+    (df["Vendedor"].isin(filtro_vendedor)) &
+    (df["Data"].between(data_inicio, data_fim)) &
+    (df["Custo"].between(filtro_preco[0], filtro_preco[1]))
+]
 
 # Gráfico de bolhas
 # fig = px.scatter_mapbox(
-#     mapa_df,
-#     lat='lat',
-#     lon='lon',
+#     df,
+#     lat=df['Latitude'],
+#     lon=df['Longitude'],
 #     size='Vendas',
 #     color='Lucro',
 #     hover_name='Região',
@@ -81,3 +133,9 @@ filtro_vendedor = st.sidebar.selectbox("Vendedor",
 # )
 
 # st.plotly_chart(fig,width='stretch')
+
+# mostrar dataframe
+
+st.subheader("Resumo por Cidade")
+
+st.dataframe(dados_filtrados[["Produto","Custo_formatado", "Região", "Categoria", "Vendedor", "Data_formatada"]])
