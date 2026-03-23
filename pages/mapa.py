@@ -2,11 +2,19 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Carregar dados - dataframe 1 - pra fazer filtros 
+############################ CARREGAR E PREPARAR DADOS ############################
 
 dados_mapa = pd.read_csv("./dados/vendas_geo.csv")
-
 df = pd.DataFrame(dados_mapa)
+
+# Formatar data
+df["Data"] = pd.to_datetime(df["Data"])
+df["Data_formatada"] = df["Data"].dt.strftime("%d/%m/%Y %H:%M:%S")
+
+# Formatar o custo
+df["Custo_formatado"] = df["Custo"].apply(
+    lambda x: f"R$ {x:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
+)
 
 ###################################################################
 
@@ -83,14 +91,6 @@ filtro_vendedor = st.sidebar.multiselect(
 
 ############################ FILTRO DE DATA ############################
 
-# transforma str data pra .to_datetime
-
-df["Data"]=pd.to_datetime(df["Data"])
-
-# transformar a data em padrao br
-
-df["Data_formatada"] = df["Data"].dt.strftime("%d/%m/%Y %H:%M:%S")
-
 # recupera as datas minimas e maximas do dataframe
 data_min = df["Data"].min().date()
 data_max = df["Data"].max().date()
@@ -151,12 +151,6 @@ filtro_preco = st.sidebar.slider(
     value=(157, 11997)
 )
 
-# formatar o custo pra melhorar a visualização
-
-df["Custo_formatado"] = df["Custo"].apply(
-    lambda x: f"R$ {x:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
-)
-
 # # aplicar os filtros e montar um DF
 
 dados_filtrados = df[
@@ -187,12 +181,10 @@ with col2:
     st.metric("Cidades", df["Cidade"].nunique())
 
 with col3:
-    receita = df["Vendas"].sum()
-    st.metric("Receita", format_brl(receita))
+   st.metric("Receita", format_brl(dados_filtrados["Vendas"].sum()))
 
 with col4:
-    lucro = df["Lucro"].sum()
-    st.metric("Lucro", format_brl(lucro))
+    st.metric("Lucro", format_brl(df["Lucro"].sum()))
 
 
 ############################ MAPA ############################ 
@@ -230,5 +222,5 @@ st.plotly_chart(fig1,width='stretch')
 
 st.subheader("Resumo por Cidade")
 
-st.dataframe(dados_filtrados[["Cidade", "Região", "Produto","Custo_formatado", "Categoria", "Data_formatada"]])
+st.dataframe(dados_filtrados[["Cidade", "Região", "Produto","Vendas", "Custo_formatado", "Categoria", "Data_formatada"]])
 
