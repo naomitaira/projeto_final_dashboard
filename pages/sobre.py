@@ -2,6 +2,20 @@ import streamlit as st
 import pandas
 import plotly.express as px
 
+############################ COLORIR SIDEBAR ############################
+
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] {
+            background-color: #20B2AA;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 st.markdown("""
 # 📊 Dashboard de Vendas e Produtos
 

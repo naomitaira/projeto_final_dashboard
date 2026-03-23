@@ -16,6 +16,21 @@ st.title("🔬 Análise detalhada de produtos 🔬")
 
 st.balloons()
 
+############################ COLORIR SIDEBAR ############################
+
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] {
+            background-color: #20B2AA;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+ ############################ FILTROS ############################
+
 # filtros para analise
 st.sidebar.header("Filtros de produtos")
 

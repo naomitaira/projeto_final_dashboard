@@ -23,6 +23,21 @@ span[data-baseweb="tag"] {
 </style>
 """, unsafe_allow_html=True)
 
+
+############################ COLORIR SIDEBAR ############################
+
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] {
+            background-color: #20B2AA;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+ ############################ FILTROS ############################
 regioes = st.sidebar.multiselect(
     "Selecione as regiões",
     options=dados_vendas["Região"].unique(),

@@ -14,6 +14,20 @@ dados_vendas = carregar_dados()
 
 st.title(":rainbow[Visão geral do negócio]", text_alignment='center')
 
+############################ COLORIR SIDEBAR ############################
+
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] {
+            background-color: #20B2AA;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 # KPIs principais 
 
 col1, col2, col3, col4 = st.columns(4)

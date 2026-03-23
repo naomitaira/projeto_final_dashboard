@@ -3,7 +3,7 @@ import streamlit as st
 # config inicial
 
 st.set_page_config(
-    page_title="Dashboard de vendas 🐧",
+    page_title="Dashboard de vendas",
     page_icon="📎",
     layout="wide"
 )
