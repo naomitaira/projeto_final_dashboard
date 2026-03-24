@@ -7,14 +7,17 @@ import plotly.express as px
 dados_mapa = pd.read_csv("./dados/vendas_geo.csv")
 df = pd.DataFrame(dados_mapa)
 
-# Formatar data
+########################### FORMATAR DADOS ###########################
+
+# FORMATAR DATAS 
+
 df["Data"] = pd.to_datetime(df["Data"])
 df["Data_formatada"] = df["Data"].dt.strftime("%d/%m/%Y %H:%M:%S")
 
-# Formatar o custo
-df["Custo_formatado"] = df["Custo"].apply(
-    lambda x: f"R$ {x:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
-)
+#FUNCAO PRA FORMATAR VALORES 
+
+def format_brl(x):
+    return f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 ###################################################################
 
@@ -38,7 +41,7 @@ st.markdown(
     
 ############################ FILTROS ############################
 
-############################ COLORIR FILTROS ############################ 
+# COLORIR FILTROS 
 st.markdown("""
 <style>
 span[data-baseweb="tag"] {
@@ -47,7 +50,7 @@ span[data-baseweb="tag"] {
 </style>
 """, unsafe_allow_html=True) #colocar antes dos filtros pra dar cor
 
-############################ FILTRO DE REGIÃO ############################
+# FILTRO DE REGIÃO 
 
 filtro_regiao = st.sidebar.multiselect(
     "Selecione as regiões",
@@ -57,7 +60,7 @@ filtro_regiao = st.sidebar.multiselect(
 
 df_cidades_filtradas = df[df["Região"].isin(filtro_regiao)]
 
-############################ FILTRO DE CIDADE ############################
+# FILTRO DE CIDADE
 
 filtro_cidade = st.sidebar.multiselect(
     "Filtrar por Cidade", 
@@ -65,7 +68,7 @@ filtro_cidade = st.sidebar.multiselect(
     default=df_cidades_filtradas["Cidade"].unique()
 )
 
-############################ FILTRO DE CATEGORIA ############################
+# FILTRO DE CATEGORIA
 
 filtro_categoria = st.sidebar.multiselect(
     "Selecione as categorias",
@@ -73,7 +76,7 @@ filtro_categoria = st.sidebar.multiselect(
     default=df["Categoria"].unique()
 )
 
-############################ FILTRO DE PRODUTO ############################
+# FILTRO DE PRODUTO 
 
 filtro_produto = st.sidebar.multiselect(
     "Selecione os produtos",
@@ -81,7 +84,7 @@ filtro_produto = st.sidebar.multiselect(
     default=df["Produto"].unique()
 )
 
-############################ FILTRO DE VENDEDOR ############################
+# FILTRO DE VENDEDOR 
 
 filtro_vendedor = st.sidebar.multiselect(
     "Selecione os vendedores",
@@ -89,15 +92,13 @@ filtro_vendedor = st.sidebar.multiselect(
     default=df["Vendedor"].unique()
 )
 
-############################ FILTRO DE DATA ############################
+# FILTRO DE DATA 
 
 # recupera as datas minimas e maximas do dataframe
 data_min = df["Data"].min().date()
 data_max = df["Data"].max().date()
 
-
-############################ IMPLEMENTAR FILTRO DE DATA ############################
-
+# IMPLEMENTAR FILTRO DE DATA 
 
 filtro_data = st.sidebar.date_input(
     "Selecione o período",
@@ -105,7 +106,6 @@ filtro_data = st.sidebar.date_input(
     min_value=data_min,
     max_value=data_max
 )
-
 
 # garantir que existem duas datas selecionadas
 if len(filtro_data) == 2:
@@ -116,9 +116,9 @@ else:
     st.stop()
 
 
-############################ FILTRO DE PREÇO ############################
+# FILTRO DE PREÇO 
 
-############################ COLORIR FILTRO DE PREÇO ############################
+# COLORIR FILTRO DE PREÇO 
 
 st.markdown("""
 <style>
@@ -151,7 +151,7 @@ filtro_preco = st.sidebar.slider(
     value=(157, 11997)
 )
 
-# # aplicar os filtros e montar um DF
+########################### aplicar os filtros e montar um DF ###########################
 
 dados_filtrados = df[
     (df["Região"].isin(filtro_regiao)) &
@@ -163,11 +163,6 @@ dados_filtrados = df[
 ]
 
 ########################### METRICAS ###########################
-
-########################### FUNCAO PRA FORMATAR VALORES ###########################
-
-def format_brl(x):
-    return f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 # criar 4 colunas para as métricas
 
@@ -181,7 +176,7 @@ with col2:
     st.metric("Cidades", df["Cidade"].nunique())
 
 with col3:
-   st.metric("Receita", format_brl(dados_filtrados["Vendas"].sum()))
+   st.metric("Receita", format_brl(df["Vendas"].sum()))
 
 with col4:
     st.metric("Lucro", format_brl(df["Lucro"].sum()))
@@ -198,29 +193,39 @@ if "Latitude" in df.columns and "Longitude" in df.columns:
         size='Vendas',
         color='Lucro',
         hover_name="Região",     
-        hover_data={
-            "Vendas": True,
-            "Lucro": True,
-            "Latitude": False,  
-            "Longitude": False
-        },
         color_continuous_scale=px.colors.sequential.Darkmint,
-        size_max=8,
+        size_max=11,
         zoom=3,
         mapbox_style="open-street-map"
         )
 
+
 # mostrar mapa 
 st.plotly_chart(fig1,width='stretch')
 
-
-
 ########################### DATAFRAME - RESUMO POR CIDADE ###########################
-
 
 # mostrar dataframe
 
 st.subheader("Resumo por Cidade")
 
-st.dataframe(dados_filtrados[["Cidade", "Região", "Produto","Vendas", "Custo_formatado", "Categoria", "Data_formatada"]])
+# st.dataframe(dados_filtrados[["Cidade", "Região" ,"Receita", "Transações", "Custo_formatado", "Lucro_formatado"]].reset_index(drop=True), use_container_width=True)
+
+resumo_cidade = (
+        dados_filtrados.groupby(["Cidade", "Região"])
+        .agg(
+            Transações=("Vendas", "count"),
+            Receita=("Vendas", "sum"),
+            Lucro=("Lucro", "sum"),
+            Custo=("Custo", "sum")
+        )
+        .reset_index()
+        .sort_values("Receita", ascending=False)
+    )
+resumo_cidade["Receita"] = resumo_cidade["Receita"].map("R$ {:,.2f}".format)
+resumo_cidade["Lucro"] = resumo_cidade["Lucro"].map("R$ {:,.2f}".format)
+resumo_cidade["Custo"] = resumo_cidade["Custo"].map("R$ {:,.2f}".format)
+
+st.dataframe(resumo_cidade, use_container_width=True, hide_index=True)
+
 
